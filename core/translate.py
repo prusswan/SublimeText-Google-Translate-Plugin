@@ -33,10 +33,10 @@ class GoogleTranslateException(Exception):
 class GoogleTranslate(object):
     string_pattern = r"\"(([^\"\\]|\\.)*)\""
     match_string =re.compile(
-                        r"\,?\[" 
-                           + string_pattern + r"\," 
-                           + string_pattern + r"\," 
-                           + string_pattern + r"\," 
+                        r"\,?\["
+                           + string_pattern + r"\,"
+                           + string_pattern + r"\,"
+                           + string_pattern + r"\,"
                            + string_pattern
                         +r"\]")
 
@@ -51,7 +51,7 @@ class GoogleTranslate(object):
             'languages': None,
         }
         self.api_urls = {
-            'translate': 'https://translate.google.com/translate_a/t?client=t&ie=UTF-8&oe=UTF-8',
+            'translate': 'http://translate.google.com/translate_a/t?client=t&ie=UTF-8&oe=UTF-8',
         }
         if not source_lang:
             source_lang = 'auto'
@@ -113,10 +113,19 @@ class GoogleTranslate(object):
 
         else:
             try:
-                req = Request(self.api_urls['translate']+"&sl=%s&tl=%s&text=%s" % (self.source, self.target, escaped_source), headers = headers)
+                link = self.api_urls['translate']+"&sl=%s&tl=%s&text=%s" % (self.source, self.target, escaped_source)
+                langpair='%s|%s'%(self.source,self.target)
+                base_url='http://ajax.googleapis.com/ajax/services/language/translate?'
+                params=urlencode( (('v',1.0),
+                                   ('q',text),
+                                   ('langpair',langpair),) )
+                req=base_url+params
+                # req = Request(url=link)
                 result = urlopen(req, timeout = 2).read()
+                print(result)
                 json = result
-            except IOError:
+            except IOError as e:
+                print "I/O error({0}): {1}".format(e.errno, e.strerror)
                 raise GoogleTranslateException(self.error_codes[501])
             except ValueError:
                 raise GoogleTranslateException(result)
@@ -166,7 +175,7 @@ class GoogleTranslate(object):
                     'gt':'>','62':'>',
                     'amp':'&','38':'&',
                     'quot':'"','34':'"',}
-        
+
         re_charEntity=re.compile(r'&#?(?P<name>\w+);')
         sz=re_charEntity.search(htmlstr)
         while sz:

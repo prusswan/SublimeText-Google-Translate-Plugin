@@ -14,7 +14,7 @@ else:
 settings = sublime.load_settings("goTranslate.sublime-settings")
 
 class GoTranslateCommand(sublime_plugin.TextCommand):
-    
+
     def run(self, edit, proxy_enable = settings.get("proxy_enable"), proxy_type = settings.get("proxy_type"), proxy_host = settings.get("proxy_host"), proxy_port = settings.get("proxy_port"), source_language = settings.get("source_language"), target_language = settings.get("target_language")):
         if not source_language:
             source_language = settings.get("source_language")
@@ -31,6 +31,7 @@ class GoTranslateCommand(sublime_plugin.TextCommand):
         target_type = settings.get("target_type")
 
         for region in self.view.sel():
+            print (region)
             if not region.empty():
 
                 v = self.view
@@ -39,7 +40,7 @@ class GoTranslateCommand(sublime_plugin.TextCommand):
 
                 if not target_language:
                     self.view.run_command("go_translate_to")
-                    return                          
+                    return
                 else:
                     result = translate.translate(selection, target_type)
 
